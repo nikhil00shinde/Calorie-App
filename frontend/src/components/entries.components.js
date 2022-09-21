@@ -30,7 +30,7 @@ const Entries = () => {
   return (
     <div>
       <Container>
-           <Button onClick={()=> {}}>Track today's calories</Button>
+           <Button onClick={()=> setAddNewEntry(true)}>Track today's calories</Button>
       </Container>
       <Container>
             {entries != null && entries.map((entry,i)=> (
@@ -48,20 +48,81 @@ const Entries = () => {
          <Modal.Body>
             <Form.Group>
                   <Form.Label>dish</Form.Label>
-                  <Form.Control onChange={(event) => {newEntry.dish = event.target.defaultValue}}></Form.Control>
+                  <Form.Control onChange={(event) => {newEntry.dish = event.target.value}}></Form.Control>
                   <Form.Label>ingredients</Form.Label>
                   <Form.Control onChange={(event) => {newEntry.ingredients = event.target.value}}></Form.Control>
                   <Form.Label>calories</Form.Label>
                   <Form.Control onChange={(event) => {newEntry.calories = event.target.value}}></Form.Control>
                   <Form.Label>fat</Form.Label>
-                  <Form.Control onChange={(event) => {newEntry.fat = event.target.value}}></Form.Control>
+                  <Form.Control type="number"  onChange={(event) => {newEntry.fat =  parseFloat(event.target.value)}}></Form.Control>
             </Form.Group>
             <Button onClick={()=> addSingleEntry()}>Add</Button>
             <Button onClick={()=> setAddNewEntry(false )}>Cancel</Button>
          </Modal.Body>
       </Modal>
+
+      <Modal show={changeIngredient.change} onHide={() => setChangeIngredient({"change":false, "id":0})} centered> 
+         <Modal.Header closeButton>
+               <Modal.Title>Change Ingredients</Modal.Title>
+         </Modal.Header>
+         <Modal.Body>
+             <Form.Group>
+              <Form.Label>new ingredients</Form.Label>
+              <Form.Control onChange={(event) => setNewIngredientName(event.target.value)}></Form.Control>
+             </Form.Group>
+             <Button onClick={()=> changeIngredientForEntry()}>Change</Button>
+             <Button onClick={(event) => setChangeIngredient({"change":false, "id":0})}>Cancel</Button>
+         </Modal.Body>
+      </Modal>
+
+      <Modal show={changeEntry.change} onHide={()=> setChangeEntry({"change":false, "id":0})} centered>
+           <Modal.Header closeButton>
+              <Modal.Title>Change Entry</Modal.Title>
+           </Modal.Header>
+           <Modal.Body>
+            <Form.Group>
+              <Form.Label>dish</Form.Label>
+              <Form.Control onChange={(event) => newEntry.dish = event.target.value}></Form.Control>
+              <Form.Label>ingredients</Form.Label>
+              <Form.Control onChange={(event) => newEntry.ingredients = event.target.value}></Form.Control>
+              <Form.Label>calories</Form.Label>
+              <Form.Control onChange={(event) => newEntry.calories = event.target.value}></Form.Control>
+              <Form.Label>fat</Form.Label>
+              <Form.Control type="number" onChange={(event) => newEntry.fat = parseFloat(event.target.value)}></Form.Control>
+            </Form.Group>
+            <Button onClick={()=> changeSingleEntry()}>Change</Button>
+            <Button onClick={()=> setChangeEntry({"change":false, "id":0})}>Cancel</Button>
+           </Modal.Body>
+      </Modal>
     </div>
   );
+
+  function changeIngredientForEntry(){
+       changeIngredient.change = false
+       var url = "http://localhost:8000/ingredient/update/"+changeIngredient.id
+
+        console.log(newIngredientName,changeIngredient.id)
+       axios.put(url,{
+        "ingredients":newIngredientName
+       }).then(response => {
+          console.log(response.status)
+          if(response.status == 200){
+            setRefreshData(true)
+          }
+       })
+  }
+
+   function changeSingleEntry(){
+    changeEntry.change = false;
+    var url = "http://localhost:8000/entry/update/"+changeEntry.id;
+    axios.put(url, newEntry)
+    .then((response) => {
+      if(response.status === 200){
+        setRefreshData(true)
+      }
+    })
+   }
+
   function addSingleEntry(){
     setAddNewEntry(false);
     var url = 'http://localhost:8000/entry/create';
@@ -101,3 +162,5 @@ const Entries = () => {
     })
   }
 }
+
+export default Entries;

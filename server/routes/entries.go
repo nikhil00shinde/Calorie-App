@@ -165,7 +165,8 @@ func UpdateEntry(c *gin.Context){
 
 }
 func UpdateIngredient(c *gin.Context){
-   entryID := c.Params.ByName("ingredients")
+   entryID := c.Params.ByName("id")
+
 	 docID,_ := primitive.ObjectIDFromHex(entryID)
 
 	 var ctx,cancel = context.WithTimeout(context.Background(), 100 * time.Second)
